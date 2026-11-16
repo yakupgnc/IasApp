@@ -2,7 +2,7 @@
 
 Öğrenci evinde ortak harcamaları, aylık iaşe bütçesini, alışveriş listesini ve ay sonu hesaplaşmalarını kolayca yönetmek için geliştirilmiş **Progressive Web App (PWA)** uygulaması.
 
-🌐 **Canlı Uygulama:** [https://dapper-stardust-1617d0.netlify.app/](https://dapper-stardust-1617d0.netlify.app/)
+🌐 **Canlı Uygulama:** [https://iasapp.netlify.app/](https://iasapp.netlify.app/)
 
 ---
 
