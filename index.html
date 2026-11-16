@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#090d16">
+    <meta name="description" content="İaşApp - Öğrenci evi ortak harcama yönetimi">
+
+    <title>İaşApp</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo">🏠</div>
+            <h1>İaşApp</h1>
+            <div class="loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="screen" style="display: none;">
+        <div class="auth-container">
+            <div class="auth-header">
+                <div class="auth-logo">🏠</div>
+                <h1>İaşApp</h1>
+                <p>Öğrenci evi harcama yönetimi</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Giriş Yap</button>
+                <button class="auth-tab" data-tab="register">Kayıt Ol</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="ornek@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Şifre</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Giriş Yap</button>
+                <button type="button" id="forgot-password-btn" class="btn btn-link">Şifremi Unuttum</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="register-name">İsim</label>
+                    <input type="text" id="register-name" placeholder="Adınız" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" placeholder="ornek@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Şifre</label>
+                    <input type="password" id="register-password" placeholder="En az 6 karakter" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full">Kayıt Ol</button>
+            </form>
+
+            <div id="auth-error" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- House Setup Screen -->
+    <div id="house-setup-screen" class="screen" style="display: none;">
+        <div class="setup-container">
+            <div class="setup-header">
+                <h1>🏠 Eve Hoş Geldin!</h1>
+                <p>Yeni bir ev oluştur veya mevcut bir eve katıl</p>
+            </div>
+
+            <div class="setup-options">
+                <div class="setup-card" id="create-house-option">
+                    <div class="setup-icon">🏗️</div>
+                    <h3>Yeni Ev Oluştur</h3>
+                    <p>Kendi evini oluştur ve arkadaşlarını davet et</p>
+                </div>
+
+                <div class="setup-card" id="join-house-option">
+                    <div class="setup-icon">🔑</div>
+                    <h3>Mevcut Eve Katıl</h3>
+                    <p>Davet kodu ile bir eve katıl</p>
+                </div>
+            </div>
+
+            <!-- Create House Form -->
+            <div id="create-house-form" class="setup-form" style="display: none;">
+                <h3>Yeni Ev Oluştur</h3>
+                <div class="form-group">
+                    <label for="house-name">Ev İsmi</label>
+                    <input type="text" id="house-name" placeholder="Örn: Merkez Mahallesi Evi" required>
+                </div>
+                <div class="form-group">
+                    <label for="monthly-budget">Kişi Başı Aylık İaşe (€)</label>
+                    <input type="number" id="monthly-budget" placeholder="50" value="50" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label for="member-count">Evdeki Kişi Sayısı</label>
+                    <input type="number" id="member-count" placeholder="4" value="4" min="2" max="20" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-secondary" id="cancel-create">İptal</button>
+                    <button type="button" class="btn btn-primary" id="confirm-create">Oluştur</button>
+                </div>
+            </div>
+
+            <!-- Join House Form -->
+            <div id="join-house-form" class="setup-form" style="display: none;">
+                <h3>Eve Katıl</h3>
+                <div class="form-group">
+                    <label for="invite-code">Davet Kodu</label>
+                    <input type="text" id="invite-code" placeholder="ABC123" required maxlength="6"
+                        style="text-transform: uppercase;">
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-secondary" id="cancel-join">İptal</button>
+                    <button type="button" class="btn btn-primary" id="confirm-join">Katıl</button>
+                </div>
+            </div>
+
+            <div id="setup-error" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="app-screen" class="screen" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="header-house-badge" aria-hidden="true">🏠</div>
+                <div class="header-titles">
+                    <span class="header-eyebrow">İAŞE & ORTAK EV</span>
+                    <span class="house-name" id="header-house-name">Ev İsmi</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="header-btn" id="profile-btn" aria-label="Profil ve Ayarlar">
+                    <img src="" alt="Profil" id="header-avatar" class="header-avatar">
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Dashboard Tab -->
+            <div id="tab-dashboard" class="tab-content active">
+                <div class="dashboard">
+                    <!-- Budget Card -->
+                    <div class="card budget-card">
+                        <div class="card-header">
+                            <h3>📊 Bu Ayın İaşesi</h3>
+                            <span class="month-label" id="current-month"></span>
+                        </div>
+                        <div class="budget-info">
+                            <span class="budget-subtitle">Toplam Harcama / Aylık Bütçe</span>
+                            <div class="budget-amount">
+                                <span class="spent" id="total-spent">0</span>
+                                <span class="separator">/</span>
+                                <span class="limit" id="budget-limit">200</span>
+                                <span class="currency">€</span>
+                            </div>
+                            <div class="budget-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="budget-progress-fill"></div>
+                                </div>
+                                <span class="progress-text" id="budget-progress-text">0%</span>
+                            </div>
+                            <div class="budget-warning" id="budget-warning" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Debt Summary Card -->
+                    <div class="card debt-card">
+                        <div class="card-header">
+                            <h3>💸 Borç Durumu</h3>
+                        </div>
+                        <div class="debt-list" id="debt-list">
+                            <p class="empty-state">Henüz harcama yok</p>
+                        </div>
+                    </div>
+
+                    <!-- Member Spending Card -->
+                    <div class="card members-card">
+                        <div class="card-header">
+                            <h3>👥 Kişi Bazlı Harcamalar</h3>
+                        </div>
+                        <div class="members-list" id="members-spending-list">
+                            <p class="empty-state">Henüz harcama yok</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Expenses -->
+                    <div class="card recent-card">
+                        <div class="card-header">
+                            <h3>🕐 Son Harcamalar</h3>
+                            <a href="#" class="see-all" id="see-all-expenses">Tümü →</a>
+                        </div>
+                        <div class="expense-list" id="recent-expenses">
+                            <p class="empty-state">Henüz harcama yok</p>
+                        </div>
+                    </div>
+
+                    <!-- Past Months / Archives -->
+                    <div class="card archives-card">
+                        <div class="card-header">
+                            <h3>📅 Geçmiş Dönemler</h3>
+                        </div>
+                        <div class="archives-list" id="archives-list">
+                            <p class="empty-state">Henüz geçmiş dönem yok</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expenses Tab -->
+            <div id="tab-expenses" class="tab-content">
+                <div class="expenses-page">
+                    <div class="page-header">
+                        <h2>Harcamalar</h2>
+                    </div>
+                    <div class="expense-filters">
+                        <select id="expense-month-filter">
+                            <!-- Filled by JS -->
+                        </select>
+                    </div>
+                    <div class="expense-list-full" id="all-expenses">
+                        <p class="empty-state">Henüz harcama yok</p>
+                    </div>
+                    <!-- Add Expense Button -->
+                    <button class="add-expense-fab" id="add-expense-btn">
+                        <span class="fab-icon">+</span>
+                        <span>Harcama Ekle</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Shopping List Tab -->
+            <div id="tab-shopping" class="tab-content">
+                <div class="shopping-page">
+                    <div class="page-header">
+                        <h2>Alışveriş Listesi</h2>
+                    </div>
+                    <div class="add-item-container">
+                        <div class="add-item-input-wrapper">
+                            <input type="text" id="new-item-input" placeholder="Ürün ekle..." autocomplete="off">
+                            <button class="btn btn-primary" id="add-item-btn">+</button>
+                        </div>
+                        <div class="item-suggestions" id="item-suggestions" style="display: none;">
+                            <!-- Filled by JS -->
+                        </div>
+                    </div>
+                    <div class="shopping-list" id="shopping-list">
+                        <p class="empty-state">Alışveriş listesi boş</p>
+                    </div>
+                    <div class="completed-section" id="completed-section" style="display: none;">
+                        <h4>Tamamlananlar</h4>
+                        <div class="completed-list" id="completed-list"></div>
+                        <button class="btn btn-link" id="clear-completed">Tamamlananları Temizle</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculate Tab -->
+            <div id="tab-calculate" class="tab-content">
+                <div class="calculate-page">
+                    <div class="page-header">
+                        <h2>Ay Sonu Hesaplama</h2>
+                    </div>
+
+                    <div class="card summary-card">
+                        <h3>📈 Özet</h3>
+                        <div class="summary-stats">
+                            <div class="stat">
+                                <span class="stat-label">Toplam Harcama</span>
+                                <span class="stat-value" id="calc-total">0€</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Kişi Başı</span>
+                                <span class="stat-value" id="calc-per-person">0€</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card breakdown-card">
+                        <h3>👤 Kişi Bazlı Durum</h3>
+                        <div class="breakdown-list" id="calc-breakdown">
+                            <p class="empty-state">Henüz harcama yok</p>
+                        </div>
+                    </div>
+
+                    <div class="card transfers-card">
+                        <h3>💳 Yapılması Gereken Transferler</h3>
+                        <div class="transfers-list" id="calc-transfers">
+                            <p class="empty-state">Transfer gerekmiyor</p>
+                        </div>
+                    </div>
+
+                    <div class="reset-section">
+                        <button class="btn btn-danger" id="reset-month-btn">🔄 Yeni Aya Geç</button>
+                        <p class="reset-warning">Bu işlem geri alınamaz!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="tab-settings" class="tab-content">
+                <div class="settings-page">
+                    <div class="page-header">
+                        <h2>Ayarlar</h2>
+                    </div>
+
+                    <div class="card profile-card">
+                        <h3>👤 Profil</h3>
+                        <div class="profile-content">
+                            <div class="avatar-section">
+                                <img src="" alt="Profil" id="settings-avatar" class="profile-avatar">
+                                <label for="avatar-upload" class="btn btn-secondary btn-sm">Fotoğraf Değiştir</label>
+                                <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="profile-info">
+                                <div class="form-group">
+                                    <label>İsim</label>
+                                    <input type="text" id="settings-name" placeholder="İsminiz">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" id="settings-email" disabled>
+                                </div>
+                                <button class="btn btn-primary" id="save-profile-btn">Kaydet</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card house-card">
+                        <h3>🏠 Ev Bilgileri</h3>
+                        <div class="house-info">
+                            <div class="info-row">
+                                <span class="info-label">Ev İsmi</span>
+                                <span class="info-value" id="settings-house-name">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Kişi Başı İaşe</span>
+                                <span class="info-value" id="settings-budget">-</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Kişi Sayısı</span>
+                                <span class="info-value" id="settings-members">-</span>
+                            </div>
+                            <div class="info-row invite-row">
+                                <span class="info-label">Davet Kodu</span>
+                                <div class="invite-code-container">
+                                    <span class="invite-code" id="settings-invite-code">-</span>
+                                    <button class="btn btn-sm btn-secondary" id="copy-invite-btn">📋 Kopyala</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card members-manage-card">
+                        <h3>👥 Ev Üyeleri</h3>
+                        <div class="members-manage-list" id="settings-members-list">
+                            <!-- Filled by JS -->
+                        </div>
+                    </div>
+
+                    <div class="card theme-card">
+                        <h3>🎨 Tema</h3>
+                        <div class="theme-toggle">
+                            <span class="theme-label">Karanlık Mod</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="theme-toggle" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="logout-section">
+                        <button class="btn btn-danger" id="logout-btn">🚪 Çıkış Yap</button>
+                        <button class="btn btn-link text-danger" id="leave-house-btn">Evden Ayrıl</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav" aria-label="Ana Menü">
+            <button class="nav-item active" data-tab="dashboard">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.5z"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Ana Sayfa</span>
+            </button>
+            <button class="nav-item" data-tab="expenses">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="5" width="20" height="14" rx="3"/>
+                        <line x1="2" y1="10" x2="22" y2="10"/>
+                        <circle cx="17" cy="15" r="1.5"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Harcamalar</span>
+            </button>
+            <button class="nav-item" data-tab="shopping">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                        <line x1="3" y1="6" x2="21" y2="6"/>
+                        <path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Liste</span>
+            </button>
+            <button class="nav-item" data-tab="calculate">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="4" y="2" width="16" height="20" rx="3"/>
+                        <line x1="8" y1="6" x2="16" y2="6"/>
+                        <line x1="8" y1="11" x2="10" y2="11"/>
+                        <line x1="14" y1="11" x2="16" y2="11"/>
+                        <line x1="8" y1="16" x2="10" y2="16"/>
+                        <line x1="14" y1="16" x2="16" y2="16"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Hesapla</span>
+            </button>
+            <button class="nav-item" data-tab="settings">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </span>
+                <span class="nav-label">Ayarlar</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="expense-modal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Yeni Harcama</h3>
+                <button class="modal-close" id="close-expense-modal">&times;</button>
+            </div>
+            <form id="expense-form">
+                <div class="form-group">
+                    <label for="expense-description">Açıklama</label>
+                    <input type="text" id="expense-description" placeholder="Örn: BIM alışverişi" required>
+                </div>
+                <div class="form-group">
+                    <label for="expense-amount">Miktar (€)</label>
+                    <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="expense-date">Tarih</label>
+                    <input type="date" id="expense-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="expense-receipt">Fatura Fotoğrafı (Opsiyonel)</label>
+                    <div class="file-upload">
+                        <input type="file" id="expense-receipt" accept="image/*">
+                        <div class="file-preview" id="receipt-preview" style="display: none;">
+                            <img src="" alt="Fatura" id="receipt-preview-img">
+                            <button type="button" class="remove-file" id="remove-receipt">&times;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-secondary" id="cancel-expense">İptal</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receipt View Modal -->
+    <div id="receipt-modal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content receipt-view">
+            <div class="modal-header">
+                <h3>Fatura</h3>
+                <button class="modal-close" id="close-receipt-modal">&times;</button>
+            </div>
+            <div class="receipt-image-container">
+                <img src="" alt="Fatura" id="receipt-view-img">
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="confirm-modal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon" id="confirm-icon">⚠️</div>
+            <h3 id="confirm-title">Emin misiniz?</h3>
+            <p id="confirm-message">Bu işlem geri alınamaz.</p>
+            <div class="confirm-buttons">
+                <button class="btn btn-secondary" id="confirm-cancel">İptal</button>
+                <button class="btn btn-danger" id="confirm-ok">Evet, Devam Et</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <!-- App Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/cloudinary.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/house.js"></script>
+    <script src="js/expenses.js"></script>
+    <script src="js/shopping.js"></script>
+    <script src="js/calculate.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((registration) => {
+                        console.log('SW registered:', registration);
+                    })
+                    .catch((error) => {
+                        console.log('SW registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+
+</html>
